@@ -6,6 +6,8 @@
  * <br />
  * PROJECT HOME: <a href="http://sourceforge.net/projects/ahgeomap/"       target="_blank">http://sourceforge.net/projects/ahgeomap/</a><br />
  * DOC:          <a href="http://www.axel-hahn.de/docs/ahgeomap/index.htm" target="_blank">http://www.axel-hahn.de/docs/ahgeomap/index.htm</a><br />
+ * SOURCE:       https://github.com/axelhahn/ahgeomap
+ * DEMO:         http://www.axel-hahn.de/demos/geolocation-maps/
  * <br />
  * 
  * @author    Axel Hahn
@@ -49,7 +51,7 @@ var ahgeomap = function (sDivname, aOptions) {
         panControlOptions: {
             position: google.maps.ControlPosition.LEFT_CENTER
         },
-        zoomControl: true,
+        zoomControl: false,
         zoomControlOptions: {
             style: google.maps.ZoomControlStyle.LARGE,
             position: google.maps.ControlPosition.LEFT_CENTER
