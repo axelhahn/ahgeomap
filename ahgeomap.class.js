@@ -4,7 +4,7 @@
  * see https://developers.google.com/maps/documentation/javascript/reference
  * 
  * <br />
- * PROJECT HOME: <a href="http://sourceforge.net/projects/ahgeomap/"       target="_blank">http://sourceforge.net/projects/ahgeomap/</a><br />
+ * PROJECT HOME: <a href="http://www.axel-hahn.de/projects/javascript/ahgeomap/"       target="_blank">http://www.axel-hahn.de/projects/javascript/ahgeomap/</a><br />
  * DOC:          <a href="http://www.axel-hahn.de/docs/ahgeomap/index.htm" target="_blank">http://www.axel-hahn.de/docs/ahgeomap/index.htm</a><br />
  * SOURCE:       <a href="https://github.com/axelhahn/ahgeomap"            target="_blank">https://github.com/axelhahn/ahgeomap</a><br />
  * DEMO:         <a href="http://www.axel-hahn.de/demos/geolocation-maps/" target="_blank">http://www.axel-hahn.de/demos/geolocation-maps/</a><br />
