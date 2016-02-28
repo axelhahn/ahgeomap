@@ -1,13 +1,13 @@
 /** 
- * wrapping clas for a simple google map.<br />
+ * wrapping class for a simple google map.<br />
  * I want to use it to point cities in my diashows http://www.axel-hahn.de/diashows/.<br />
  * see https://developers.google.com/maps/documentation/javascript/reference
  * 
  * <br />
  * PROJECT HOME: <a href="http://sourceforge.net/projects/ahgeomap/"       target="_blank">http://sourceforge.net/projects/ahgeomap/</a><br />
  * DOC:          <a href="http://www.axel-hahn.de/docs/ahgeomap/index.htm" target="_blank">http://www.axel-hahn.de/docs/ahgeomap/index.htm</a><br />
- * SOURCE:       https://github.com/axelhahn/ahgeomap
- * DEMO:         http://www.axel-hahn.de/demos/geolocation-maps/
+ * SOURCE:       <a href="https://github.com/axelhahn/ahgeomap"            target="_blank">https://github.com/axelhahn/ahgeomap</a><br />
+ * DEMO:         <a href="http://www.axel-hahn.de/demos/geolocation-maps/" target="_blank">http://www.axel-hahn.de/demos/geolocation-maps/</a><br />
  * <br />
  * 
  * @author    Axel Hahn
@@ -101,8 +101,6 @@ var ahgeomap = function (sDivname, aOptions) {
      * @returns {boolean}
      */
     this.getCurrentPosition = function () {
-        this._aMapOptions['latitude'] = false;
-        this._aMapOptions['longitude'] = false;
 
         if (navigator.geolocation) {
 
@@ -253,6 +251,7 @@ var ahgeomap = function (sDivname, aOptions) {
      * @param {string} title  title
      * @param {float}  lat    position - latitude
      * @param {float}  lon    position - longitude
+     * @param {string} sDescr  more text
      * @returns {undefined}
      */
     this.addMarker = function (title, lat, lon, sDescr) {
@@ -267,6 +266,9 @@ var ahgeomap = function (sDivname, aOptions) {
             map: this._map,
             title: title
         });
+        if (!sDescr) {
+            sDescr=title;
+        }
         if (sDescr) {
             var infowindow = new google.maps.InfoWindow({
                 content: sDescr
@@ -278,6 +280,19 @@ var ahgeomap = function (sDivname, aOptions) {
         // marker.setMap(this._map);
 
     };
+    
+    /**
+     * set a marker icon on users position
+     * @param {string} title   title
+     * @param {string} sDescr  more text
+     * @returns {undefined}
+     */
+    this.addMarkerOnHome = function (title, sDescr) {
+        if (!title){
+            title="Your are here.";
+        }
+        return this.addMarker(title, this._userPosition['lat'], this._userPosition['lng'], sDescr);
+    }
 
     /**
      * draw a line from users position to target
