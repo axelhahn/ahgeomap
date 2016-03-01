@@ -131,6 +131,9 @@ var ahgeomap = function (sDivname, aOptions) {
         return false;
     };
 
+    this.getHomePosition = function () {
+        return this._userPosition;
+    }
 
     /**
      * set home position; callback of navigator.geolocation.getCurrentPosition

@@ -3,15 +3,18 @@
     <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8" />    
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-        <title>Test of ahgeomap class</title>
+        <title>Demo of ahgeomap class</title>
         <style type="text/css">
             html { height: 100% }
             body { height: 100%; margin: 0; padding: 0; font-family: arial; color: #225;}
             code { background: #eee; color: #008;}
-            #content{ margin: 1em auto; width: 1000px;  border: 0px solid; }
+            h1{background: #cde; margin: 0; padding: 1em 0.5em;}
+            #content{ margin: 1em auto; width: 1000px;  border: 1px solid #eee; }
             #map { 
-                border: 1px dashed #888;
+                border: 0px dashed #888;
+                /*
                 box-shadow: 0.5em 0.5em 1em #888;
+                */
                 height: 500px; width: 100%; 
             }
             #map_canvas { width: 100%; height: 100%;}
@@ -27,25 +30,24 @@
             }
             #lineH{width: 1000px; margin-top: 250px; border-top-width: 1px;}
             #lineV{margin-left: 500px; height: 500px; border-left-width: 1px; }
-            #cityButtons{background: #f0f0f4; margin-bottom: 1em; padding: 0.5em;}
+            #cityButtons{background: #def; margin-bottom: 0em; padding: 0.5em;}
 
         </style>
 
         <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=true"></script>
-        <script type="text/javascript" src="geolocation-maps.js"></script>
+        <script type="text/javascript" src="ahgeomap.class.js"></script>
 
     </head>
     <body>
         <div id="content">
-            <h1>Demo: Karte mit der Javascript-Klasse ahgeomap</h1>
-
+            <h1>Demo: Map with javascript class ahgeomap</h1>
             <div id="cityButtons"></div>
             <div id="map">
                 <div id="lineH"></div>
                 <div id="lineV"></div>
                 <div id="map_canvas">
                     <div style="position: absolute; color: #f00; font-size: 200%; z-index: 1000;">
-                        accept sharing your position to draw a map
+                        accept shareing your position to draw a map
                     </div>
                 </div>
                 <div id="coordsDisabled"></div>
@@ -54,60 +56,62 @@
 
             <div>
                 <br><br>
-                ahgeomap ist eine Javascript-Klasse, mit der man mit Hilfe Google Maps
-                eine Karte zeigen lassen kann.<br>
-                Darin verf&uuml;gbare Funktionen:
+                ahgeomap is a javascript class that shows a map with Google Maps.<br>
+                
+                Project page: <a href="/projects/javascript/ahgeomap/">ahgeomap</a> on Axels website (German)<br>
+                Source: <a href="https://github.com/axelhahn/ahgeomap">Github: /axelhahn/ahgeomap</a><br>
+                <br>
+                available functions:
                 <ul>
                     <li>
-                        <strong>Initialisieren einer Karte</strong><br>
-                        Man kann dabei Default-Werte &uuml;bersteuern, z.B. Kartentyp, Zoomstufe, ...<br>
+                        <strong>initialise a map</strong><br>
+                        You can override the default values: i.e. map type, zoom level, ...<br>
                         <code>var oMap = new ahgeomap("map_canvas", aMapOptions);</code><br>
-                        Anm.: Auch nach dem Initialisieren ist dies sp&auml;ter mit <code>oMap.setOptions([Array])</code> m&ouml;glich.<br>
+                        Remark: Afterwards after initialisation you can call <code>oMap.setOptions([Array])</code> too.<br>
                         <br>
                     </li>
                     <li>
-                        <strong>eigene Position bestimmen</strong><br>
-                        mit <code>oMap.getCurrentPosition()</code> wird die aktuelle Position
-                        vom Browser geholt.<br>
+                        <strong>get own position</strong><br>
+                        With <code>oMap.getCurrentPosition()</code> the class fetches the position from the browser.<br>
                         <br>
                     </li>
                     <li>
-                        <strong>Marker setzen</strong><br>
-                        Zeichnen der Ballons.
+                        <strong>set marker</strong><br>
+                        Draw a red ballon.
                         <code>oMap.addMarker(title, lat, lng, sDescr);</code><br>
                         <br>
                     </li>
                     <li>
-                        <strong>Linie von der aktuellen Position zu den Zielen</strong><br>
+                        <strong>draw a line from users position to the targets</strong><br>
                         <code>oMap.addLineFromHomeToTarget(lat, lng);</code><br>
-                        Anm.: <code>getCurrentPosition()</code> muss vorher die eigene Position geholt haben.<br>
+                        Remark: Call <code>getCurrentPosition()</code> to get the position first.<br>
                         <br>
                     </li>
                     <li>
-                        <strong>eine neue Position setzen</strong><br>
-                        Mit Koordinaten-Angabe wird auf die Position in der Karte gesprungen.
+                        <strong>center to a new position</strong><br>
+                        With the coordinates you can center the map to a new position.
                         <code>oMap.setPosition(41.8907301, 12.4907973);</code><br>
-                        Diese Funktion ist oben in den Buttons mit den St&auml;dtenamen
-                        im onclick-Event hinterlegt.<br>
+                        This function is used in the onclick event in the buttons with the cities.<br>
                         <br>
                     </li>
                     <li>
-                        <strong>auf eigene Position setzen</strong><br>
-                        zur eigenen Position zentrieren: <code>oMap.setHomePosition();</code><br>
-                        Diese Funktion ist oben im Buttons "eigene Position"
-                        im onclick-Event hinterlegt.<br>
-                        Anm.: <code>getCurrentPosition()</code> muss vorher die eigene Position geholt haben.<br>
+                        <strong>jump to users position</strong><br>
+                        <code>oMap.setHomePosition();</code><br>
+                        This function is used in the button "my position"
+                        as onclick event.<br>
+                        Remark: Call <code>getCurrentPosition()</code> to get the position first.<br>
                         <br>
                     </li>
                     <li>
-                        <strong>Zoomstufe setzen</strong><br>
-                        zur eigenen Position zentrieren: <code>oMap.setZoom(Wert);</code><br>
-                        Diese Funktion ist oben rechts in den Buttons der Zoomstufen
-                        im onclick-Event hinterlegt.<br>
+                        <strong>set a zoomlevel</strong><br>
+                        <code>oMap.setZoom([value]);</code><br>
+                        This function is used in the buttons for the zoom level
+                        as onclick event.<br>
                         <br>
                     </li>
                 </ul>
             </div>
+
         </div>
 
         <script>
@@ -121,13 +125,13 @@
                         'lng': 13.3790051
                     }
                 },
-                'Bern': {
+                'Berne': {
                     'pos': {
                         'lat': 46.9470476,
                         'lng': 7.4442394
                     }
                 },
-                'Rom': {
+                'Roma': {
                     'pos': {
                         'lat': 41.8907301,
                         'lng': 12.4907973
@@ -140,6 +144,7 @@
                     }
                 }
             };
+            var aZoomlevels=[2, 3, 6, 10, 13];
 
             // ------------------------------------------------------------
             // functions
@@ -150,7 +155,17 @@
                 var sHtml = '';
                 for (var sCity in aCities) {
                     aPos = aCities[sCity]['pos'];
-                    sHtml += '<button onclick="oMap.setPosition(' + aPos['lat'] + ', ' + aPos['lng'] + ');">' + sCity + '</button>';
+                    sOnclick='oMap.setPosition(' + aPos['lat'] + ', ' + aPos['lng'] + ');';
+                    sHtml += '<button onclick="' + sOnclick + '" title="'+sOnclick+'">' + sCity + '</button>';
+                }
+                return sHtml;
+            }
+            // helper function: zoom buttons
+            function getZoomButtons() {
+                var sHtml = '';
+                for (var iZoom in aZoomlevels) {
+                    sOnclick='oMap.setZoom('+aZoomlevels[iZoom]+', true);';
+                    sHtml += '<button onclick="' + sOnclick + '" title="'+sOnclick+'">' + aZoomlevels[iZoom] + '</button>';
                 }
                 return sHtml;
             }
@@ -164,7 +179,12 @@
                 }
                 return true;
             }
+            
             function addLines() {
+                if (!oMap.getHomePosition()) {
+                    window.setTimeout("addLines();", 1000);
+                    return false;
+                }
                 for (var sCity in aCities) {
                     aPos = aCities[sCity]['pos'];
                     oMap.addLineFromHomeToTarget(aPos['lat'], aPos['lng']);
@@ -176,14 +196,11 @@
             // show buttons
             // ------------------------------------------------------------
             document.getElementById('cityButtons').innerHTML += ''
-                    + '<button onclick="oMap.setHomePosition();">eigene Position</button>'
-                    + ' | Orte: '
+                    + '<button onclick="oMap.setHomePosition();" title="oMap.setHomePosition();">my position</button>'
+                    + ' ... Cities: '
                     + getCityButtons()
-                    + ' | Zoom-Level '
-                    + '<button onclick="oMap.setZoom(3,  true);">3</button>'
-                    + '<button onclick="oMap.setZoom(6,  true);">6</button>'
-                    + '<button onclick="oMap.setZoom(10, true);">10</button>'
-                    + '<button onclick="oMap.setZoom(13, true);">13</button>'
+                    + ' ... Zoom '
+                    + getZoomButtons()
                     ;
 
             // ------------------------------------------------------------
@@ -192,7 +209,7 @@
 
             // optional: override any map option
             var aMapOptions = {
-                // zoom: 4
+                zoom: aZoomlevels[0]
                 // mapTypeId: google.maps.MapTypeId.HYBRID
             };
 
@@ -201,7 +218,7 @@
             oMap.showMap();
 
             addMarkers();
-            window.setTimeout("addLines();", 1000);
+            addLines();
 
         </script>
 
