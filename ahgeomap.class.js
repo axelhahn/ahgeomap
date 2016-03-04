@@ -3,6 +3,11 @@
  * I want to use it to point cities in my diashows http://www.axel-hahn.de/diashows/.<br />
  * see https://developers.google.com/maps/documentation/javascript/reference
  * 
+ * getter: https://developers.google.com/maps/documentation/javascript/reference
+ * events: https://developers.google.com/maps/documentation/javascript/events
+ * 
+ * 
+ * 
  * <br />
  * PROJECT HOME: <a href="http://www.axel-hahn.de/projects/javascript/ahgeomap/"       target="_blank">http://www.axel-hahn.de/projects/javascript/ahgeomap/</a><br />
  * DOC:          <a href="http://www.axel-hahn.de/docs/ahgeomap/index.htm" target="_blank">http://www.axel-hahn.de/docs/ahgeomap/index.htm</a><br />
@@ -63,6 +68,8 @@ var ahgeomap = function (sDivname, aOptions) {
         }
     };
 
+    this._aWaitForUserPos = {};
+    
     this._map = false;
 
 
@@ -73,8 +80,8 @@ var ahgeomap = function (sDivname, aOptions) {
     // ----------------------------------------------------------------------
 
     /**
-     * set options and override defaults of _aMapOptions
-     * @param {object} aOptions
+     * set options and override defaults of see this._aMapOptions
+     * @param {object} aOptions  map options
      * @returns {Boolean}
      */
     this.setOptions = function (aOptions) {
@@ -108,32 +115,37 @@ var ahgeomap = function (sDivname, aOptions) {
             return navigator.geolocation.getCurrentPosition(function (position) {
                 that.setAsHomePos(position);
                 return true;
-            },
-                    function (error) {
-                        switch (error.code) {
-                            case error.PERMISSION_DENIED :
-                                alert("Error. PERMISSION_DENIED");
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                alert("Error. POSITION_UNAVAILABLE");
-                                break;
-                            case error.TIMEOUT:
-                                alert("Error. TIMEOUT");
-                                break;
-                            default:
-                                alert("unknown error code");
-                        }
-                    },
-                    {maximumAge: 60000, timeout: 5000, enableHighAccuracy: false}
+                },
+                function (error) {
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED :
+                            alert("Error. PERMISSION_DENIED");
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            alert("Error. POSITION_UNAVAILABLE");
+                            break;
+                        case error.TIMEOUT:
+                            alert("Error. TIMEOUT");
+                            break;
+                        default:
+                            alert("unknown error code");
+                    }
+                },
+                {maximumAge: 60000, timeout: 5000, enableHighAccuracy: false}
             );
-            return false;
         }
         return false;
     };
 
+    /**
+     * get the position of the user (this returns the saved position of 
+     * getCurrentPosition()
+     * @returns {object}
+     */
     this.getHomePosition = function () {
         return this._userPosition;
-    }
+    };
+
 
     /**
      * set home position; callback of navigator.geolocation.getCurrentPosition
@@ -146,6 +158,12 @@ var ahgeomap = function (sDivname, aOptions) {
             lat: position.coords.latitude,
             lng: position.coords.longitude
         };
+        if (this._aWaitForUserPos['line']) {
+            var aLines=this._aWaitForUserPos['line'];
+            for(var i=0; i<aLines.length; i++){
+                this.addLineFromHomeToTarget(aLines[i]['lat'], aLines[i]['lng']);
+            }
+        }
         return this.setPos(position);
     };
 
@@ -194,6 +212,24 @@ var ahgeomap = function (sDivname, aOptions) {
 
 
     /**
+     * get the position displayed at the center of the map. Note that this LatLng object is not wrapped.
+     * @returns {position}
+     */
+    this.getMapCenter = function () {
+        return this._map.getCenter();
+    };
+
+    /**
+     * get zoom level of the visible map
+     * @returns {Integer}
+     */
+    this.getMapZoom = function () {
+        return this._map.getZoom();
+    };
+
+
+
+    /**
      * initialize and draw a map
      * @returns {undefined}
      */
@@ -219,6 +255,12 @@ var ahgeomap = function (sDivname, aOptions) {
                         'lng: ' + Math.round(event.latLng.lng());
             });
         }
+        
+        /*
+        this._map.addListener('zoom_changed', function() {
+          infowindow.setContent('Zoom: ' + this._map.getZoom());
+        });
+        */
 
     };
 
@@ -253,16 +295,16 @@ var ahgeomap = function (sDivname, aOptions) {
      * set a marker icon
      * @param {string} title  title
      * @param {float}  lat    position - latitude
-     * @param {float}  lon    position - longitude
+     * @param {float}  lng    position - longitude
      * @param {string} sDescr  more text
      * @returns {undefined}
      */
-    this.addMarker = function (title, lat, lon, sDescr) {
-        if (!lat || !lon) {
+    this.addMarker = function (title, lat, lng, sDescr) {
+        if (!lat || !lng) {
             lat = this._aMapOptions['latitude'];
-            lon = this._aMapOptions['longitude'];
+            lng = this._aMapOptions['longitude'];
         }
-        var latlng = new google.maps.LatLng(lat, lon);
+        var latlng = new google.maps.LatLng(lat, lng);
 
         var marker = new google.maps.Marker({
             position: latlng,
@@ -300,10 +342,10 @@ var ahgeomap = function (sDivname, aOptions) {
     /**
      * draw a line from users position to target
      * @param {float}  lat    position - latitude
-     * @param {float}  lon    position - longitude
+     * @param {float}  lng    position - longitude
      * @returns {undefined}
      */
-    this.addLineFromHomeToTarget = function (lat, lon) {
+    this.addLineFromHomeToTarget = function (lat, lng) {
         // Define a symbol using a predefined path (an arrow)
         // supplied by the Google Maps JavaScript API.
         /*
@@ -311,10 +353,17 @@ var ahgeomap = function (sDivname, aOptions) {
             path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
         };
         */
+        if (!this._userPosition) {
+            if (!this._aWaitForUserPos['line']) {
+                this._aWaitForUserPos['line'] = [];
+            }
+            this._aWaitForUserPos['line'].push({lat: lat, lng: lng});
+            return false;
+        }
 
         // Create the polyline and add the symbol via the 'icons' property.
         var line = new google.maps.Polyline({
-            path: [this._userPosition, {lat: lat, lng: lon}],
+            path: [this._userPosition, {lat: lat, lng: lng}],
             icons: [{
                     // icon: lineSymbol,
                     offset: '100%'

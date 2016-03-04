@@ -23,6 +23,18 @@
                 color: white;
                 padding: 5px;
             }
+            #mapinfos{
+                position: absolute; 
+                margin-top: 460px;
+                margin-left: 0.5em;
+                padding: 0.2em;
+                z-index: 100000;
+                background: rgba(0,0,0,0.2);
+                color:#fff;
+            }
+            #mapinfos strong{
+                color: #44a;
+            }
             #lineH,#lineV{
                 border: 0px dashed rgba(0,0,0,0.4); 
                 position: absolute; 
@@ -43,6 +55,7 @@
             <h1>Demo: Map with javascript class ahgeomap</h1>
             <div id="cityButtons"></div>
             <div id="map">
+                <div id="mapinfos">infos</div>
                 <div id="lineH"></div>
                 <div id="lineV"></div>
                 <div id="map_canvas">
@@ -181,16 +194,22 @@
             }
             
             function addLines() {
-                if (!oMap.getHomePosition()) {
-                    window.setTimeout("addLines();", 1000);
-                    return false;
-                }
                 for (var sCity in aCities) {
                     aPos = aCities[sCity]['pos'];
                     oMap.addLineFromHomeToTarget(aPos['lat'], aPos['lng']);
                 }
                 return true;
             }
+            function showInfos() {
+                var sHtml='';
+                sHtml+='<strong>Zoom</strong>: ' + oMap.getMapZoom() + ' | ' ;
+                sHtml+='<strong>Pos</strong>: ' + oMap.getMapCenter() + ' ' ;
+                
+                document.getElementById('mapinfos').innerHTML = sHtml;
+                window.setTimeout("showInfos()", 1000);
+                return true;
+            }
+
 
             // ------------------------------------------------------------
             // show buttons
@@ -219,6 +238,9 @@
 
             addMarkers();
             addLines();
+            
+            // update zoomlevel and position
+            showInfos();
 
         </script>
 
