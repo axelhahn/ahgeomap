@@ -1,10 +1,10 @@
 /** 
  * wrapping class for a simple google map.<br />
- * I want to use it to point cities in my diashows http://www.axel-hahn.de/diashows/.<br />
- * see https://developers.google.com/maps/documentation/javascript/reference
+ * I want to use it to point cities in my diashows http://www.axel-hahn.de/diashows/<br />
+ * see
  * 
- * getter: https://developers.google.com/maps/documentation/javascript/reference
- * events: https://developers.google.com/maps/documentation/javascript/events
+ * getter: https://developers.google.com/maps/documentation/javascript/reference<br />
+ * events: https://developers.google.com/maps/documentation/javascript/events<br />
  * 
  * 
  * 
@@ -16,7 +16,7 @@
  * <br />
  * 
  * @author    Axel Hahn
- * @version   0.01
+ * @version   0.9
  *
  * @this {ahgeomap}
  * 
@@ -41,16 +41,13 @@ var ahgeomap = function (sDivname, aOptions) {
 
     this._oDivMap = false; 	  // div object of the map
 
-    this._userPosition = false;   // user pos (by navigator.geolocation.getCurrentPosition)
+    this._userPosition = false;   // user pos (return from navigator.geolocation.getCurrentPosition)
 
     this._aMapOptions = {
         zoom: 3,
         latitude: 0,
         longitude: 0,
-        // mapTypeId: google.maps.MapTypeId.HYBRID,
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        // mapTypeId: google.maps.MapTypeId.TERRAIN,
-        // mapTypeId: google.maps.MapTypeId.SATTELITE,
+        mapTypeId: google.maps.MapTypeId.ROADMAP, // one of HYBRID | ROADMAP | SATTELITE | TERRAIN
         mapTypeControl: false,
         panControl: true,
         panControlOptions: {
@@ -66,10 +63,14 @@ var ahgeomap = function (sDivname, aOptions) {
         streetViewControlOptions: {
             position: google.maps.ControlPosition.LEFT_CENTER
         }
+        
     };
 
+    // helper object .. store elements to be handled if the user position is known
+    // see this.addLineFromHomeToTarget()
     this._aWaitForUserPos = {};
     
+    // map object ... will be initialized in this.showMap()
     this._map = false;
 
 
@@ -137,6 +138,7 @@ var ahgeomap = function (sDivname, aOptions) {
         return false;
     };
 
+
     /**
      * get the position of the user (this returns the saved position of 
      * getCurrentPosition()
@@ -167,6 +169,7 @@ var ahgeomap = function (sDivname, aOptions) {
         return this.setPos(position);
     };
 
+
     /**
      * move map to users position
      * @returns {Boolean}
@@ -178,8 +181,9 @@ var ahgeomap = function (sDivname, aOptions) {
         return this.setPosition(this._userPosition['lat'], this._userPosition['lng']);
     };
 
+
     /**
-     * move map to a new position
+     * move map to a new position with a given position object
      * @param {object} position   position object
      * @returns {Boolean}
      */
@@ -187,8 +191,9 @@ var ahgeomap = function (sDivname, aOptions) {
         return this.setPosition(position.coords.latitude, position.coords.longitude);
     };
 
+
     /**
-     * move map to a new position
+     * move map to a new position by given coordinates 
      * @param {float} fLat   latitude
      * @param {float} fLong  longitude
      * @param {type} iZoom   zoom level
@@ -199,6 +204,8 @@ var ahgeomap = function (sDivname, aOptions) {
         this._aMapOptions['longitude'] = fLong;
         if (iZoom) {
             this.setZoom(iZoom, false);
+        } else {
+            this.setZoom(this.getMapZoom());
         }
         this.showMap();
         return true;
@@ -219,6 +226,7 @@ var ahgeomap = function (sDivname, aOptions) {
         return this._map.getCenter();
     };
 
+
     /**
      * get zoom level of the visible map
      * @returns {Integer}
@@ -228,41 +236,47 @@ var ahgeomap = function (sDivname, aOptions) {
     };
 
 
+    /**
+     * add a listener to the map ... then you can react on changes like zoom,
+     * movement or events like mousemove, clicks etc.
+     * @see available events https://developers.google.com/maps/documentation/javascript/events
+     * @param {string}   name of the event you want to listen 
+     * @param {function} sFunction
+     * @returns {Boolean}
+     */
+    this.addMapListener = function (sEvent, sFunction){
+        return this._map.addListener(sEvent, function () {
+            eval(sFunction);
+        });
+    };
+
 
     /**
      * initialize and draw a map
      * @returns {undefined}
      */
     this.showMap = function () {
-
         if (this._map) {
             return this.updateMap();
         }
-
 
         var latlng = new google.maps.LatLng(this._aMapOptions['latitude'], this._aMapOptions['longitude']);
         this._aMapOptions['center'] = latlng;
 
         this._map = new google.maps.Map(this._oDivMap, this._aMapOptions);
 
-        // Show the lat and lng under the mouse cursor.
-        var coordsDiv = document.getElementById('coords');
-        if (coordsDiv){
-            this._map.controls[google.maps.ControlPosition.TOP_CENTER].push(coordsDiv);
-            this._map.addListener('mousemove', function (event) {
-                coordsDiv.textContent =
-                        'lat: ' + Math.round(event.latLng.lat()) + ', ' +
-                        'lng: ' + Math.round(event.latLng.lng());
-            });
-        }
-        
+        // add Listers...
         /*
-        this._map.addListener('zoom_changed', function() {
-          infowindow.setContent('Zoom: ' + this._map.getZoom());
-        });
+        if (this._aListeners){
+            for (var sEvent in this._aListeners){
+                if (this._aListeners[sEvent]){
+                    this.addMapListener(sEvent, this._aListeners[sEvent]);
+                }
+            };
+        };
         */
-
     };
+
 
     /**
      * update existing, visible map: move to given poition; set zoom
@@ -273,8 +287,10 @@ var ahgeomap = function (sDivname, aOptions) {
         var latlng = new google.maps.LatLng(this._aMapOptions['latitude'], this._aMapOptions['longitude']);
         this._aMapOptions['center'] = latlng;
         this._map.setZoom(this._aMapOptions['zoom']);
-        this._map.panTo(latlng);
+        // this._map.panTo(latlng);
+        this._map.setCenter(latlng);
     };
+
 
     /**
      * set zoomlevel of a map
@@ -322,7 +338,6 @@ var ahgeomap = function (sDivname, aOptions) {
                 infowindow.open(this._map, marker);
             });
         }
-        // marker.setMap(this._map);
 
     };
     
@@ -337,7 +352,8 @@ var ahgeomap = function (sDivname, aOptions) {
             title="Your are here.";
         }
         return this.addMarker(title, this._userPosition['lat'], this._userPosition['lng'], sDescr);
-    }
+    };
+
 
     /**
      * draw a line from users position to target

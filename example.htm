@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <html>
+    <!--
+    
+        DEMO file to show functions of ahgeomap
+    
+        http://www.axel-hahn.de/projects/javascript/ahgeomap/
+        https://github.com/axelhahn/ahgeomap
+        (c) 2016  www.axel-hahn.de
+    
+    -->
     <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8" />    
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
@@ -12,25 +21,29 @@
             #content{ margin: 1em auto; width: 1000px;  border: 1px solid #eee; }
             #map { 
                 border: 0px dashed #888;
-                /*
-                box-shadow: 0.5em 0.5em 1em #888;
-                */
                 height: 500px; width: 100%; 
             }
             #map_canvas { width: 100%; height: 100%;}
-            #coords {
-                background-color: black;
-                color: white;
-                padding: 5px;
+            
+            #infoZoom{
+                color:#fff; 
+                font-size: 500%;
+                margin-top: 0.1em;
+                margin-left: 0.3em;
+                opacity: 0.3;
+                position: absolute; 
+                text-shadow: 0 0 0.1em #333;
+                z-index: 100000;
+                
             }
             #mapinfos{
-                position: absolute; 
+                background: rgba(0,0,0,0.2);
+                color:#fff;
                 margin-top: 460px;
                 margin-left: 0.5em;
                 padding: 0.2em;
+                position: absolute; 
                 z-index: 100000;
-                background: rgba(0,0,0,0.2);
-                color:#fff;
             }
             #mapinfos strong{
                 color: #44a;
@@ -56,6 +69,7 @@
             <div id="cityButtons"></div>
             <div id="map">
                 <div id="mapinfos">infos</div>
+                <div id="infoZoom" title="Zoom"></div>
                 <div id="lineH"></div>
                 <div id="lineV"></div>
                 <div id="map_canvas">
@@ -63,22 +77,24 @@
                         accept shareing your position to draw a map
                     </div>
                 </div>
-                <div id="coordsDisabled"></div>
             </div>
 
 
             <div>
                 <br><br>
                 ahgeomap is a javascript class that shows a map with Google Maps.<br>
+                <br>
                 
-                Project page: <a href="/projects/javascript/ahgeomap/">ahgeomap</a> on Axels website (German)<br>
+                Project page: <a href="http://www.axel-hahn.de/projects/javascript/ahgeomap/">ahgeomap</a> on Axels website (German)<br>
                 Source: <a href="https://github.com/axelhahn/ahgeomap">Github: /axelhahn/ahgeomap</a><br>
                 <br>
                 available functions:
                 <ul>
                     <li>
                         <strong>initialise a map</strong><br>
-                        You can override the default values: i.e. map type, zoom level, ...<br>
+                        By default it initializes a Google Map without control elements.
+                        You can override the default values: i.e. map type, zoom level, controls, ...<br>
+                        The values of the option array are the same like those of Google Maps.<br>
                         <code>var oMap = new ahgeomap("map_canvas", aMapOptions);</code><br>
                         Remark: Afterwards after initialisation you can call <code>oMap.setOptions([Array])</code> too.<br>
                         <br>
@@ -122,6 +138,16 @@
                         as onclick event.<br>
                         <br>
                     </li>
+                    <li>
+                        <strong>react on events</strong><br>
+                        <code>oMap.addMapListener(event, function);</code><br>
+                        If the zoom or position change you can react and execute whatever,
+                        i.e. show coordinates of the new position of the center of the map
+                        or update a visible zoom level.<br>
+                        The getter functions <code>oMap.getMapCenter()</code> und <code>oMap.getMapZoom()</code>
+                        return the position and zoom level.
+                        <br>
+                    </li>
                 </ul>
             </div>
 
@@ -163,7 +189,10 @@
             // functions
             // ------------------------------------------------------------
 
-            // helper function: draw buttons for all positions
+            /**
+             * helper function: get html code to draw buttons for all positions
+             * @returns {String}
+             */
             function getCityButtons() {
                 var sHtml = '';
                 for (var sCity in aCities) {
@@ -173,7 +202,11 @@
                 }
                 return sHtml;
             }
-            // helper function: zoom buttons
+            
+            /**
+             * helper function: zoom buttons
+             * @returns {String}
+             */
             function getZoomButtons() {
                 var sHtml = '';
                 for (var iZoom in aZoomlevels) {
@@ -183,7 +216,10 @@
                 return sHtml;
             }
 
-            // helper function: draw markers for all positions and a line 
+            /**
+             * helper function: draw markers for all positions
+             * @returns {Boolean}
+             */
             function addMarkers() {
                 for (var sCity in aCities) {
                     aPos = aCities[sCity]['pos'];
@@ -192,7 +228,11 @@
                 }
                 return true;
             }
-            
+
+            /**
+             * helper function: draw lines from user position to targets
+             * @returns {Boolean}
+             */
             function addLines() {
                 for (var sCity in aCities) {
                     aPos = aCities[sCity]['pos'];
@@ -200,23 +240,13 @@
                 }
                 return true;
             }
-            function showInfos() {
-                var sHtml='';
-                sHtml+='<strong>Zoom</strong>: ' + oMap.getMapZoom() + ' | ' ;
-                sHtml+='<strong>Pos</strong>: ' + oMap.getMapCenter() + ' ' ;
-                
-                document.getElementById('mapinfos').innerHTML = sHtml;
-                window.setTimeout("showInfos()", 1000);
-                return true;
-            }
-
 
             // ------------------------------------------------------------
             // show buttons
             // ------------------------------------------------------------
             document.getElementById('cityButtons').innerHTML += ''
-                    + '<button onclick="oMap.setHomePosition();" title="oMap.setHomePosition();">my position</button>'
-                    + ' ... Cities: '
+                    + '<button onclick="oMap.setHomePosition();" title="oMap.setHomePosition();">You</button>'
+                    + ' ... Cities '
                     + getCityButtons()
                     + ' ... Zoom '
                     + getZoomButtons()
@@ -235,12 +265,34 @@
             var oMap = new ahgeomap("map_canvas", aMapOptions);
             oMap.getCurrentPosition();
             oMap.showMap();
-
+            
             addMarkers();
             addLines();
             
-            // update zoomlevel and position
-            showInfos();
+            // ------------------------------------------------------------
+            // callback functions
+            // ------------------------------------------------------------
+            
+            oMap.addMapListener('zoom_changed', 'infoZoom(oMap.getMapZoom())');
+            oMap.addMapListener('center_changed', 'infoPosition(oMap.getMapCenter())');
+
+            /**
+             * callback function: show position in a div
+             * @param {object} oPos  position
+             * @returns {Boolean}
+             */
+            function infoPosition(oPos){
+                return document.getElementById('mapinfos').innerHTML = oPos;
+            }
+
+            /**
+             * callback function: show zoom lever in a div
+             * @param {integer} iZoom
+             * @returns {Boolean}
+             */
+            function infoZoom(iZoom){
+                return document.getElementById('infoZoom').innerHTML = iZoom;
+            }
 
         </script>
 
